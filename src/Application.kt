@@ -1,6 +1,8 @@
 package com.example
 
 import com.example.data.checkPasswordForUsername
+import com.example.routes.loginRoute
+import com.example.routes.registerRoute
 import io.ktor.application.*
 import io.ktor.auth.*
 import io.ktor.features.*
@@ -25,6 +27,8 @@ fun Application.module(testing: Boolean = false) {
         configureAuth()
     }
     install(Routing){
+        registerRoute()
+        loginRoute()
     }
 
 }

@@ -14,7 +14,6 @@ private val db= client.getDatabase("PWAMemesdb")
 private val users= db.getCollection<User>("users")
 private val memes= db.getCollection<Meme>("memes")
 private val comments= db.getCollection<Comment>("comments")
-
 suspend fun registerUser(user: User) : Boolean{
     return users.insertOne(user).wasAcknowledged()
 }
@@ -67,19 +66,45 @@ suspend fun getUserMemes(username: String):List<Meme>{
 suspend fun saveComment(comment: Comment):Boolean{
     return comments.insertOne(comment).wasAcknowledged()
 }
+suspend fun getCommentPost(meme: Meme):List<Comment>{
+    return comments.find(Comment::idMeme eq meme._id).toList()
+}
 suspend fun isMemeLiked(username:String, meme:Meme): Boolean{
-    val idMeme = meme._id
-    val meme1 = memes.findOne(Meme::_id eq idMeme) ?: return false
-    return username in meme1.liked
+    val meme = memes.findOne(Meme::_id eq meme._id) ?: return false
+    return username in meme.liked
 }
 suspend fun toggleLikeMeme(username: String,meme: Meme):Boolean{
     val isLiked = isMemeLiked(username,meme)
+    val isUnliked = isMemeUnliked(username, meme)
     return if(isLiked){
         val newLikes = memes.findOneById(meme._id)!!.liked - username
         memes.updateOneById(meme._id, setValue(Meme::liked, newLikes)).wasAcknowledged()
     }else{
+        if(isUnliked){
+            val newUnlikes = memes.findOneById(meme._id)!!.unliked - username
+            memes.updateOneById(meme._id, setValue(Meme::unliked, newUnlikes)).wasAcknowledged()
+        }
         val newLikes = memes.findOneById(meme._id)!!.liked + username
         memes.updateOneById(meme._id, setValue(Meme::liked,newLikes)).wasAcknowledged()
+    }
+}
+suspend fun isMemeUnliked(username:String, meme:Meme): Boolean{
+    val meme = memes.findOne(Meme::_id eq meme._id) ?: return false
+    return username in meme.unliked
+}
+suspend fun toggleUnlikeMeme(username: String,meme: Meme):Boolean{
+    val isUnliked = isMemeUnliked(username,meme)
+    val isLiked = isMemeLiked(username,meme)
+    return if(isUnliked){
+        val newUnlikes = memes.findOneById(meme._id)!!.unliked - username
+        memes.updateOneById(meme._id, setValue(Meme::unliked, newUnlikes)).wasAcknowledged()
+    }else{
+        if(isLiked){
+            val newLikes = memes.findOneById(meme._id)!!.liked - username
+            memes.updateOneById(meme._id, setValue(Meme::liked, newLikes)).wasAcknowledged()
+        }
+        val newUnlikes = memes.findOneById(meme._id)!!.unliked + username
+        memes.updateOneById(meme._id, setValue(Meme::liked,newUnlikes)).wasAcknowledged()
     }
 }
 suspend fun isCommentLiked(username: String, comment: Comment):Boolean{
@@ -98,9 +123,8 @@ suspend fun toggleLikeComment(username: String,comment: Comment):Boolean{
     }
 }
 suspend fun isMemeSaved(username:String,meme:Meme):Boolean{
-    val idMeme = meme._id
-    val meme1 = memes.findOne(Meme::_id eq idMeme) ?: return false
-    return username in meme1.saved
+    val meme = memes.findOne(Meme::_id eq meme._id) ?: return false
+    return username in meme.saved
 }
 suspend fun toggleSaveMeme(username: String,meme: Meme):Boolean{
     val isLiked = isMemeLiked(username,meme)
@@ -112,7 +136,6 @@ suspend fun toggleSaveMeme(username: String,meme: Meme):Boolean{
         memes.updateOneById(meme._id, setValue(Meme::saved,newSaves)).wasAcknowledged()
     }
 }
-
 
 
 
