@@ -8,6 +8,9 @@ data class User(
     val password: String,
     val following: List<String> = listOf(),
     val followers: List<String> = listOf(),
+    val image: String = "R.drawable.image",
+    val bio: String = "",
+    val score:Int= 0,
     @BsonId
     val _id: String = ObjectId().toString()
 )

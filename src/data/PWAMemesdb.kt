@@ -24,6 +24,12 @@ suspend fun checkPasswordForUsername(username:String, passwordToCheck:String):Bo
     val actualPassword = users.findOne(User::username eq username)?.password ?: return false
     return actualPassword==passwordToCheck
 }
+suspend fun getUser(username:String): User? {
+    return users.findOne(User::username eq username)
+}
+suspend fun updateUser(user: User):Boolean{
+    return users.updateOneById(user._id, user).wasAcknowledged()
+}
 suspend fun isFollowing(username:String, usernameToFollow:String): Boolean{
     val user = users.findOne(User::username eq username) ?: return false
     return usernameToFollow in user.following
@@ -57,11 +63,13 @@ suspend fun getAllMemes():List<Meme>{
 }
 suspend fun getFollowingMemes(username: String): List<Meme>? {
     val following = users.findOne(User::username eq username)?.following ?: return null
-    return memes.find(Meme::idAuthor `in` following).toList()
+    return memes.find(Meme::usernameAuthor `in` following).toList()
 }
 suspend fun getUserMemes(username: String):List<Meme>{
-    val id= users.findOne(User::username eq username)?._id
-    return memes.find(Meme::idAuthor eq id).toList()
+    return memes.find(Meme::usernameAuthor eq username).toList()
+}
+suspend fun getUserTrash(username: String):List<Meme>{
+    return memes.find(Meme::usernameKeyword eq username,Meme::type eq "trash").toList()
 }
 suspend fun saveComment(comment: Comment):Boolean{
     return comments.insertOne(comment).wasAcknowledged()
@@ -137,8 +145,16 @@ suspend fun toggleSaveMeme(username: String,meme: Meme):Boolean{
     }
 }
 
-
-
+suspend fun decreaseScore(username: String,scoreDecrease:Int):Boolean{
+    val user = users.findOne(User::username eq username) ?: return false
+    val updateScore = user.score - scoreDecrease
+    return users.updateOneById(user._id, setValue(User::score,updateScore)).wasAcknowledged()
+}
+suspend fun increaseScore(username: String,scoreIncrease:Int):Boolean{
+    val user = users.findOne(User::username eq username) ?: return false
+    val updateScore = user.score + scoreIncrease
+    return users.updateOneById(user._id, setValue(User::score,updateScore)).wasAcknowledged()
+}
 
 
 
