@@ -1,14 +1,10 @@
 package com.example.routes
 
-import com.example.data.collections.Meme
 import com.example.data.collections.User
 import com.example.data.getUser
-import com.example.data.requests.SearchRequest
-import com.example.data.responses.SimpleResponse
 import com.example.data.updateUser
 import io.ktor.application.*
 import io.ktor.auth.*
-import io.ktor.http.*
 import io.ktor.http.HttpStatusCode.Companion.BadRequest
 import io.ktor.http.HttpStatusCode.Companion.Conflict
 import io.ktor.http.HttpStatusCode.Companion.OK

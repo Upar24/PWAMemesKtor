@@ -1,6 +1,7 @@
 package com.example.routes
 
 import com.example.data.decreaseScore
+import com.example.data.getLeaderBoard
 import com.example.data.increaseScore
 import com.example.data.requests.PointRequest
 import com.example.data.responses.SimpleResponse
@@ -50,4 +51,11 @@ fun Route.scoreRoute(){
             }
         }
     }
+    route("/leaderboard"){
+        get {
+            val leaderList = getLeaderBoard()
+            call.respond(OK,leaderList)
+        }
+    }
+
 }
