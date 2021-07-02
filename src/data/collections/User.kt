@@ -10,7 +10,7 @@ data class User(
     val followers: List<String> = listOf(),
     val image: String = "R.drawable.image",
     val bio: String = "",
-    val score:Int= 0,
+    val score:Int= 1000,
     @BsonId
     val _id: String = ObjectId().toString()
 )
